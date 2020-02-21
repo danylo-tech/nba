@@ -28,6 +28,17 @@ class PlayerDetail extends Component {
     // });
   }
 
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.route.params.personId !== this.props.route.params.personId) {
+      this.setState({playerDetail: null});
+      this.props.handleGetPlayerProfile(
+        nextProps.route.params.personId,
+        playerDetail => this.setState({playerDetail}),
+      );
+    }
+    return true;
+  }
+
   render() {
     const {personId} = this.props.route.params;
     const {playerList} = this.props;

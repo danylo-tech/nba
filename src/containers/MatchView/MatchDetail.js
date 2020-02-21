@@ -7,13 +7,13 @@ import {
   ActivityIndicator,
   PixelRatio,
   Dimensions,
+  Image,
 } from 'react-native';
 import {TabView, TabBar, SceneMap} from 'react-native-tab-view';
 
 import {handleGetMatchDetail, handleGetLeagueStandings} from '../../actions';
-import {COLORS, MATCH_STATUS} from '../../constants/main';
+import {COLORS, MATCH_STATUS, TEAM_ICONS} from '../../constants/main';
 import MatchPlayers from './MatchPlayers';
-import {SvgCssUri} from 'react-native-svg';
 
 class MatchDetail extends Component {
   constructor(props) {
@@ -115,13 +115,10 @@ class MatchDetail extends Component {
       <View style={styles.container}>
         <View style={styles.matchTotalInfo}>
           <View style={styles.team}>
-            <View style={styles.teamLogo}>
-              <SvgCssUri
-                width="100%"
-                height="100%"
-                uri={`https://stats.nba.com/media/img/teams/logos/${homeTeam.abbreviation}_logo.svg`}
-              />
-            </View>
+            <Image
+              style={styles.teamLogo}
+              source={TEAM_ICONS[homeTeam.abbreviation.toLowerCase()]}
+            />
             <Text style={styles.teamCity}>{homeTeam.city}</Text>
             <Text style={styles.teamName}>{homeTeam.nickname}</Text>
             <Text style={styles.standing}>
@@ -155,13 +152,10 @@ class MatchDetail extends Component {
           </View>
 
           <View style={styles.team}>
-            <View style={styles.teamLogo}>
-              <SvgCssUri
-                width="100%"
-                height="100%"
-                uri={`https://stats.nba.com/media/img/teams/logos/${opTeam.abbreviation}_logo.svg`}
-              />
-            </View>
+            <Image
+              style={styles.teamLogo}
+              source={TEAM_ICONS[opTeam.abbreviation.toLowerCase()]}
+            />
             <Text style={styles.teamCity}>{opTeam.city}</Text>
             <Text style={styles.teamName}>{opTeam.nickname}</Text>
             <Text style={styles.standing}>

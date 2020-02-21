@@ -5,6 +5,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MatchView from '../containers/MatchView';
 import PlayerView from '../containers/PlayerView';
 import {TAB_ICONS, COLORS} from '../constants/main';
+import TeamView from '../containers/TeamView';
 
 const Tab = createBottomTabNavigator();
 
@@ -41,7 +42,7 @@ class AppRouter extends Component {
         />
         <Tab.Screen
           name="TeamView"
-          component={PlayerView}
+          component={TeamView}
           options={{title: 'Teams'}}
         />
       </Tab.Navigator>

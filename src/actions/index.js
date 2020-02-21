@@ -131,3 +131,13 @@ export function handleGetPlayerLog(personId, year, cb) {
       .catch(console.error);
   };
 }
+
+export function handleGetConferenceStandings(cb) {
+  return (dispatch, getStore) => {
+    Axios.get('http://data.nba.net/prod/v1/current/standings_conference.json')
+      .then(res => {
+        cb(res.data.league.standard.conference);
+      })
+      .catch(console.error);
+  };
+}
