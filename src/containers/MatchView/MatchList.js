@@ -8,7 +8,7 @@ import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
 import {FlatList, TouchableHighlight} from 'react-native-gesture-handler';
 
 import {handleGetMatches} from '../../actions';
-import {COLORS} from '../../constants/main';
+import {COLORS, MATCH_STATUS} from '../../constants/main';
 import MatchPanel from './MatchPanel';
 
 class MatchList extends Component {
@@ -20,23 +20,52 @@ class MatchList extends Component {
       matchDate: new Date(),
       showDatePicker: false,
     };
+
+    this.timerId = null;
   }
 
   componentDidMount() {
-    const {matchDate} = this.state;
-    this.props.handleGetMatches(matchDate, matches => this.setState({matches}));
+    this.handleLoadMatches();
   }
+
+  handleLoadMatches = () => {
+    const {matchDate} = this.state;
+    this.props.handleGetMatches(matchDate, matches => {
+      const {navigation} = this.props;
+
+      if (navigation.isFocused()) {
+        this.setState({matches});
+      }
+
+      const isLiveExists = matches.some(e => {
+        return e.period_time.game_status === MATCH_STATUS.LIVE;
+      });
+
+      if (this.timerId) {
+        clearTimeout(this.timerId);
+      }
+
+      this.timerId = setTimeout(
+        this.handleLoadMatches,
+        isLiveExists ? 5000 : 120000,
+      );
+    });
+  };
 
   renderMatch = (match, index) => {
     const {navigation} = this.props;
     return <MatchPanel MATCH={match} navigation={navigation} />;
   };
 
-  handleChangeDate = (event, matchDate) => {
-    this.setState({matchDate});
+  handleChangeDate = async (event, matchDate) => {
+    await this.setState({matchDate, matches: null});
 
-    this.props.handleGetMatches(matchDate);
+    this.handleLoadMatches();
   };
+
+  UNSAFE_componentWillMount() {
+    clearTimeout(this.timerId);
+  }
 
   render() {
     const {matchDate, matches} = this.state;

@@ -4,12 +4,12 @@ import {
   Text,
   PixelRatio,
   StyleSheet,
-  Image,
   TouchableHighlight,
 } from 'react-native';
+import {SvgCssUri} from 'react-native-svg';
 import PropTypes from 'prop-types';
 
-import {MATCH_STATUS, TEAM_ICONS, COLORS} from '../../constants/main';
+import {MATCH_STATUS, COLORS} from '../../constants/main';
 
 class MatchPanel extends Component {
   handleGoDetail = () => {
@@ -40,7 +40,7 @@ class MatchPanel extends Component {
         );
         break;
       case MATCH_STATUS.LIVE:
-        matchStatus = '';
+        matchStatus = `${MATCH.item.period_time.period_status} ${MATCH.item.period_time.game_clock}`;
         break;
       case MATCH_STATUS.OVER:
         matchStatus = 'Final';
@@ -54,10 +54,13 @@ class MatchPanel extends Component {
         underlayColor="transparent">
         <View style={styles.container}>
           <View style={styles.team}>
-            <Image
-              style={styles.teamLogo}
-              source={TEAM_ICONS[homeTeam.abbreviation.toLowerCase()]}
-            />
+            <View style={styles.teamLogo}>
+              <SvgCssUri
+                width="100%"
+                height="100%"
+                uri={`https://stats.nba.com/media/img/teams/logos/${homeTeam.abbreviation}_logo.svg`}
+              />
+            </View>
             <Text style={styles.teamCity}>{homeTeam.city}</Text>
             <Text style={styles.teamName}>{homeTeam.nickname}</Text>
           </View>
@@ -82,10 +85,13 @@ class MatchPanel extends Component {
           </View>
 
           <View style={styles.team}>
-            <Image
-              style={styles.teamLogo}
-              source={TEAM_ICONS[opTeam.abbreviation.toLowerCase()]}
-            />
+            <View style={styles.teamLogo}>
+              <SvgCssUri
+                width="100%"
+                height="100%"
+                uri={`https://stats.nba.com/media/img/teams/logos/${opTeam.abbreviation}_logo.svg`}
+              />
+            </View>
             <Text style={styles.teamCity}>{opTeam.city}</Text>
             <Text style={styles.teamName}>{opTeam.nickname}</Text>
           </View>

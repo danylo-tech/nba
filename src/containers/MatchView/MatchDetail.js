@@ -6,14 +6,14 @@ import {
   StyleSheet,
   ActivityIndicator,
   PixelRatio,
-  Image,
   Dimensions,
 } from 'react-native';
 import {TabView, TabBar, SceneMap} from 'react-native-tab-view';
 
 import {handleGetMatchDetail, handleGetLeagueStandings} from '../../actions';
-import {COLORS, MATCH_STATUS, TEAM_ICONS} from '../../constants/main';
+import {COLORS, MATCH_STATUS} from '../../constants/main';
 import MatchPlayers from './MatchPlayers';
+import {SvgCssUri} from 'react-native-svg';
 
 class MatchDetail extends Component {
   constructor(props) {
@@ -24,18 +24,42 @@ class MatchDetail extends Component {
       leagueStandings: null,
       activeTabIndex: 0,
     };
+
+    this.timerId = null;
+    this.mounted = false;
   }
 
   componentDidMount() {
+    this.handleLoadMatchDetail();
+  }
+
+  UNSAFE_componentWillMount() {
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+    }
+  }
+
+  handleLoadMatchDetail = () => {
     const {matchId, matchDate} = this.props.route.params;
-    console.log(matchId);
-    this.props.handleGetMatchDetail(matchId, matchDate, matchDetail =>
-      this.setState({matchDetail}),
-    );
+    this.props.handleGetMatchDetail(matchId, matchDate, matchDetail => {
+      const {navigation} = this.props;
+
+      if (navigation.isFocused()) {
+        this.setState({matchDetail});
+      }
+
+      if (matchDetail.period_time.game_status === MATCH_STATUS.LIVE) {
+        if (this.timerId) {
+          clearTimeout(this.timerId);
+        }
+
+        setTimeout(this.handleLoadMatchDetail, 10000);
+      }
+    });
     this.props.handleGetLeagueStandings(matchDate, leagueStandings =>
       this.setState({leagueStandings}),
     );
-  }
+  };
 
   getTeamStandings(teamId) {
     const {leagueStandings} = this.state;
@@ -66,8 +90,6 @@ class MatchDetail extends Component {
       );
     }
 
-    console.log(matchDetail);
-
     const homeTeam = matchDetail.home;
     const opTeam = matchDetail.visitor;
     const gameStatus = matchDetail.period_time.game_status;
@@ -81,7 +103,7 @@ class MatchDetail extends Component {
         );
         break;
       case MATCH_STATUS.LIVE:
-        matchStatus = '';
+        matchStatus = `${matchDetail.period_time.period_status} ${matchDetail.period_time.game_clock}`;
         break;
       case MATCH_STATUS.OVER:
         matchStatus = matchDetail.period_time.period_status;
@@ -93,10 +115,13 @@ class MatchDetail extends Component {
       <View style={styles.container}>
         <View style={styles.matchTotalInfo}>
           <View style={styles.team}>
-            <Image
-              style={styles.teamLogo}
-              source={TEAM_ICONS[homeTeam.abbreviation.toLowerCase()]}
-            />
+            <View style={styles.teamLogo}>
+              <SvgCssUri
+                width="100%"
+                height="100%"
+                uri={`https://stats.nba.com/media/img/teams/logos/${homeTeam.abbreviation}_logo.svg`}
+              />
+            </View>
             <Text style={styles.teamCity}>{homeTeam.city}</Text>
             <Text style={styles.teamName}>{homeTeam.nickname}</Text>
             <Text style={styles.standing}>
@@ -130,10 +155,13 @@ class MatchDetail extends Component {
           </View>
 
           <View style={styles.team}>
-            <Image
-              style={styles.teamLogo}
-              source={TEAM_ICONS[opTeam.abbreviation.toLowerCase()]}
-            />
+            <View style={styles.teamLogo}>
+              <SvgCssUri
+                width="100%"
+                height="100%"
+                uri={`https://stats.nba.com/media/img/teams/logos/${opTeam.abbreviation}_logo.svg`}
+              />
+            </View>
             <Text style={styles.teamCity}>{opTeam.city}</Text>
             <Text style={styles.teamName}>{opTeam.nickname}</Text>
             <Text style={styles.standing}>

@@ -1,8 +1,27 @@
 import Axios from 'axios';
 import moment from 'moment';
 
-// import * as GLOBALACTIONS from '../constants/action-types/global';
+import * as GLOBALACTIONS from '../constants/action-types/global';
 // import * as MATCHACTIONS from '../constants/action-types/match';
+
+const d = new Date();
+const currentMonth = d.getMonth() + 1;
+let season;
+if (currentMonth >= 10) {
+  season =
+    d.getFullYear().toString() +
+    '-' +
+    (d.getFullYear() + 1).toString().substring(2, 4);
+} else {
+  season =
+    d.getFullYear().toString() -
+    1 +
+    '-' +
+    d
+      .getFullYear()
+      .toString()
+      .substring(2, 4);
+}
 
 export function handleGetMatches(matchDate, cb) {
   return (dispatch, getStore) => {
@@ -49,5 +68,66 @@ export function handleGetLeagueStandings(matchDate, cb) {
       .catch(error => {
         cb([]);
       });
+  };
+}
+
+export function handleGetPlayerList(cb) {
+  return (dispatch, getStore) => {
+    const Store = getStore();
+    // console.log(Store);
+    if (Store.rcGlobal.playerList) {
+      return;
+    }
+    Axios.get(`http://data.nba.net/prod/v1/${season.slice(0, 4)}/players.json`)
+      .then(res => {
+        dispatch({
+          type: GLOBALACTIONS.SET_PLAYER_LIST,
+          payload: res.data.league.standard,
+        });
+      })
+      .catch(console.error);
+  };
+}
+
+export function handleGetTeamList(cb) {
+  return (dispatch, getStore) => {
+    const Store = getStore();
+    // console.log(Store);
+    if (Store.rcGlobal.teamList) {
+      return;
+    }
+
+    Axios.get(`http://data.nba.net/prod/v2/${season.slice(0, 4)}/teams.json`)
+      .then(res => {
+        dispatch({
+          type: GLOBALACTIONS.SET_TEAM_LIST,
+          payload: res.data.league.standard,
+        });
+      })
+      .catch(console.error);
+  };
+}
+
+export function handleGetPlayerProfile(personId, cb) {
+  return (dispatch, getStore) => {
+    Axios.get(
+      `http://data.nba.net/prod/v1/2019/players/${personId}_profile.json`,
+    )
+      .then(res => {
+        cb(res.data.league.standard);
+      })
+      .catch(console.error);
+  };
+}
+
+export function handleGetPlayerLog(personId, year, cb) {
+  return (dispatch, getStore) => {
+    Axios.get(
+      `http://data.nba.net/prod/v1/${year}/players/${personId}_gamelog.json`,
+    )
+      .then(res => {
+        cb(res.data.league.standard);
+      })
+      .catch(console.error);
   };
 }
