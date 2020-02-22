@@ -13,6 +13,7 @@ export const MATCH_STATUS = {
 export const COLORS = {
   primary: '#DC004E',
   secondary: '#121212',
+  white: 'white',
 };
 
 export const TEAM_ICONS = {
